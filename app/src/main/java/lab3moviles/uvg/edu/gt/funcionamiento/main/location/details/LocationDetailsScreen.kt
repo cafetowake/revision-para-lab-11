@@ -11,28 +11,23 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import lab3moviles.uvg.edu.gt.data.dc.Location
 import lab3moviles.uvg.edu.gt.funcionamiento.common.LoadingView
-import lab3moviles.uvg.edu.gt.funcionamiento.main.character.details.LocationDetailsViewModel
-import lab3moviles.uvg.edu.gt.ui.theme.Lab3movilesTheme
 
 @Composable
 fun LocationDetailsRoute(
@@ -62,7 +57,7 @@ private fun LocationDetailsScreen(
             },
             navigationIcon = {
                 IconButton(onClick = onNavigateBack) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = null)
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                 }
             }
         )
@@ -148,18 +143,3 @@ private class LocationDetailsParameterProvider : CollectionPreviewParameterProvi
     )
 )
 
-@Preview
-@Composable
-private fun PreviewLocationDetailsScreen(
-    @PreviewParameter(LocationDetailsParameterProvider::class) state: LocationDetailsState
-) {
-    Lab3movilesTheme() {
-        Surface {
-            LocationDetailsScreen(
-                state,
-                onNavigateBack = { },
-                modifier = Modifier.fillMaxSize()
-            )
-        }
-    }
-}

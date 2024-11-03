@@ -6,7 +6,7 @@ import androidx.navigation.navigation
 import kotlinx.serialization.Serializable
 import lab3moviles.uvg.edu.gt.funcionamiento.main.character.details.characterDetailsScreen
 import lab3moviles.uvg.edu.gt.funcionamiento.main.character.details.navigateToCharacterDetailsScreen
-import lab3moviles.uvg.edu.gt.funcionamiento.main.character.list.CharacterDestination
+import lab3moviles.uvg.edu.gt.funcionamiento.main.character.list.CharactersDestination
 import lab3moviles.uvg.edu.gt.funcionamiento.main.character.list.charactersScreen
 
 @Serializable
@@ -16,7 +16,7 @@ fun NavGraphBuilder.characterGraph(
     navController: NavController
 ) {
     navigation<CharacterNavGraph>(
-        startDestination = CharacterDestination
+        startDestination = CharactersDestination
     ) {
         charactersScreen(
             onCharacterClick = navController::navigateToCharacterDetailsScreen

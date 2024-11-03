@@ -13,29 +13,24 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import lab3moviles.uvg.edu.gt.data.dc.Person
 import lab3moviles.uvg.edu.gt.funcionamiento.common.LoadingView
-import lab3moviles.uvg.edu.gt.ui.theme.Lab3movilesTheme
-
 
 @Composable
 fun CharacterDetailsRoute(
@@ -66,7 +61,7 @@ private fun CharacterDetailsScreen(
             },
             navigationIcon = {
                 IconButton(onClick = onNavigateBack) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = null)
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                 }
             }
         )
@@ -159,7 +154,7 @@ private fun CharacterDetailsPropItem(
     }
 }
 
-private class CharacterProfileParameterProvider : CollectionPreviewParameterProvider<CharacterDetailsState>(
+private class CharacterDetailsParameterProvider : CollectionPreviewParameterProvider<CharacterDetailsState>(
     listOf(
         CharacterDetailsState(),
         CharacterDetailsState(
@@ -175,19 +170,3 @@ private class CharacterProfileParameterProvider : CollectionPreviewParameterProv
         )
     )
 )
-
-@Preview
-@Composable
-private fun PreviewCharacterProfileScreen(
-    @PreviewParameter(CharacterProfileParameterProvider::class) state: CharacterDetailsState
-) {
-    Lab3movilesTheme {
-        Surface {
-            CharacterDetailsScreen(
-                state = state,
-                onNavigateBack = { },
-                modifier = Modifier.fillMaxSize()
-            )
-        }
-    }
-}

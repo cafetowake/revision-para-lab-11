@@ -1,18 +1,18 @@
-package lab3moviles.uvg.edu.gt.data.data.local.Entity
+package lab3moviles.uvg.edu.gt.data.network.dto.location
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
+import lab3moviles.uvg.edu.gt.data.data.local.Entity.LocationEntity
 import lab3moviles.uvg.edu.gt.data.dc.Location
 
-@Entity
-data class LocationEntity(
-    @PrimaryKey val id: Int,
+@Serializable
+data class LocationDto(
+    val id: Int,
     val name: String,
     val type: String,
     val dimension: String
 )
 
-fun LocationEntity.mapToModel(): Location {
+fun LocationDto.mapToLocationModel(): Location {
     return Location(
         id = id,
         name = name,
@@ -21,7 +21,7 @@ fun LocationEntity.mapToModel(): Location {
     )
 }
 
-fun Location.mapToEntity(): LocationEntity {
+fun LocationDto.toEntity(): LocationEntity {
     return LocationEntity(
         id = id,
         name = name,

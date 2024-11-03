@@ -10,14 +10,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -25,7 +22,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import lab3moviles.uvg.edu.gt.data.dc.Location
 import lab3moviles.uvg.edu.gt.funcionamiento.common.ErrorView
 import lab3moviles.uvg.edu.gt.funcionamiento.common.LoadingView
-import lab3moviles.uvg.edu.gt.ui.theme.Lab3movilesTheme
 
 
 @Composable
@@ -126,20 +122,3 @@ private class LocationsParameterProvider : CollectionPreviewParameterProvider<Lo
     )
 )
 
-@Preview
-@Composable
-private fun PreviewLocationsScreen(
-    @PreviewParameter(LocationsParameterProvider::class) state: LocationsState
-) {
-    Lab3movilesTheme() {
-        Surface {
-            LocationsScreen(
-                state = state,
-                forceError = {},
-                onRetryClick = {},
-                onLocationClick = {},
-                modifier = Modifier.fillMaxSize()
-            )
-        }
-    }
-}

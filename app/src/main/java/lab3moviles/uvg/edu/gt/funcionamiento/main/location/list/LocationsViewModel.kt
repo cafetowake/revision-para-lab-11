@@ -3,6 +3,7 @@ package lab3moviles.uvg.edu.gt.funcionamiento.main.location.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -12,7 +13,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import lab3moviles.uvg.edu.gt.data.repository.LocalLocationRepository
-import lab3moviles.uvg.edu.gt.repository.LocationRepository
+import lab3moviles.uvg.edu.gt.di.AppDependencies
+import lab3moviles.uvg.edu.gt.domain.repository.LocationRepository
 
 class LocationsViewModel(
     private val locationRepository: LocationRepository
@@ -65,8 +67,12 @@ class LocationsViewModel(
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
+                val context = checkNotNull(this[APPLICATION_KEY])
+                val appDatabase = AppDependencies.provideDatabase(context)
                 LocationsViewModel(
-                    locationRepository = LocalLocationRepository()
+                    locationRepository = LocalLocationRepository(
+                        locationDao = appDatabase.locationDao()
+                    )
                 )
             }
         }

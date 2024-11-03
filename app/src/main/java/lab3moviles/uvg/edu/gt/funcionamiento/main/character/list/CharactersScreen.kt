@@ -1,7 +1,5 @@
 package lab3moviles.uvg.edu.gt.funcionamiento.main.character.list
 
-import android.app.Activity
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,32 +10,25 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import lab3moviles.uvg.edu.gt.data.data.local.Entity.CharacterEntity
 import lab3moviles.uvg.edu.gt.data.dc.Person
-import lab3moviles.uvg.edu.gt.ui.theme.Lab3movilesTheme
+import lab3moviles.uvg.edu.gt.funcionamiento.common.ErrorView
+import lab3moviles.uvg.edu.gt.funcionamiento.common.LoadingView
 
 @Composable
 fun CharactersRoute(
@@ -55,43 +46,54 @@ fun CharactersRoute(
 }
 
 @Composable
-fun CharactersScreen(
-    navController: NavController,
-    characterListViewModel: CharactersViewModel = hiltViewModel()
+private fun CharactersScreen(
+    state: CharactersState,
+    forceError: () -> Unit,
+    onRetryClick: () -> Unit,
+    onCharacterClick: (Int) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    val isSyncing by characterListViewModel.isSyncing.collectAsState()
-
-    if (isSyncing) {
-        // Mostrar un estado de carga mientras se realiza la sincronización
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
-        }
-    } else {
-        // Aquí iría el contenido normal de la lista de personajes
-        CharacterList(navController = navController)
-    }
-}
-
-
-
-@Composable
-fun CharacterRow(character: CharacterEntity, navController: NavController) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                navController.navigate("character_detail/${character.id}")
+    Box(modifier) {
+        when {
+            state.isLoading -> {
+                LoadingView(
+                    loadingText = "Obteniendo personajes",
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .clickable { forceError() }
+                )
             }
-            .padding(16.dp)
-    ) {
-        Text(text = character.name, style = MaterialTheme.typography.headlineSmall)
+
+            state.isError -> {
+                ErrorView(
+                    errorText = "Uh, oh. Error al obtener personajes",
+                    onRetryClick = onRetryClick,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                )
+            }
+
+            else -> {
+                LazyColumn(
+                    modifier = modifier
+                ) {
+                    items(state.characters) { item ->
+                        CharacterItem(
+                            character = item,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onCharacterClick(item.id) }
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
-
 @Composable
-private fun CharactersItem(
-    person: Person,
+private fun CharacterItem(
+    character: Person,
     modifier: Modifier = Modifier
 ) {
     val imageBackgroundColors = listOf(
@@ -111,7 +113,7 @@ private fun CharactersItem(
     ) {
         Surface(
             modifier = Modifier.size(48.dp),
-            color = imageBackgroundColors[(person.id % (imageBackgroundColors.count() - 1))],
+            color = imageBackgroundColors[(character.id % (imageBackgroundColors.count() - 1))],
             shape = CircleShape
         ) {
             Box {
@@ -122,9 +124,9 @@ private fun CharactersItem(
             }
         }
         Column {
-            Text(text = person.name)
+            Text(text = character.name)
             Text(
-                text = "${person.species} * ${person.status}",
+                text = "${character.species} * ${character.status}",
                 style = MaterialTheme.typography.labelSmall
             )
         }
@@ -161,21 +163,3 @@ private class CharactersParameterProvider : CollectionPreviewParameterProvider<C
         )
     )
 )
-
-@Preview
-@Composable
-private fun PreviewCharactersScreen(
-    @PreviewParameter(CharactersParameterProvider::class) state: CharactersState
-) {
-    Lab3movilesTheme() {
-        Surface {
-            CharactersScreen(
-                state = state,
-                forceError = {},
-                onRetryClick = {},
-                onCharacterClick = {},
-                modifier = Modifier.fillMaxSize()
-            )
-        }
-    }
-}

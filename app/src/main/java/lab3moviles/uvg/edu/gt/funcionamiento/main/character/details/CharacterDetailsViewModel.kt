@@ -3,6 +3,7 @@ package lab3moviles.uvg.edu.gt.funcionamiento.main.character.details
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
@@ -13,7 +14,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import lab3moviles.uvg.edu.gt.data.repository.LocalCharacterRepository
-import lab3moviles.uvg.edu.gt.repository.CharacterRepository
+import lab3moviles.uvg.edu.gt.di.AppDependencies
+import lab3moviles.uvg.edu.gt.domain.repository.CharacterRepository
 
 class CharacterDetailsViewModel(
     private val characterRepository: CharacterRepository,
@@ -49,8 +51,12 @@ class CharacterDetailsViewModel(
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val savedStateHandle = createSavedStateHandle()
+                val context = checkNotNull(this[APPLICATION_KEY])
+                val appDatabase = AppDependencies.provideDatabase(context)
                 CharacterDetailsViewModel(
-                    characterRepository = LocalCharacterRepository(),
+                    characterRepository = LocalCharacterRepository(
+                        characterDao = appDatabase.characterDao()
+                    ),
                     savedStateHandle = savedStateHandle
                 )
             }

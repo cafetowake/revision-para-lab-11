@@ -1,9 +1,10 @@
-package lab3moviles.uvg.edu.gt.funcionamiento.main.character.details
+package lab3moviles.uvg.edu.gt.funcionamiento.main.location.details
 
 import lab3moviles.uvg.edu.gt.data.repository.LocalLocationRepository
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
@@ -13,9 +14,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import lab3moviles.uvg.edu.gt.funcionamiento.main.location.details.LocationDetailsDestination
-import lab3moviles.uvg.edu.gt.funcionamiento.main.location.details.LocationDetailsState
-import lab3moviles.uvg.edu.gt.repository.LocationRepository
+import lab3moviles.uvg.edu.gt.di.AppDependencies
+import lab3moviles.uvg.edu.gt.domain.repository.LocationRepository
 
 class LocationDetailsViewModel(
     private val locationRepository: LocationRepository,
@@ -51,8 +51,12 @@ class LocationDetailsViewModel(
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val savedStateHandle = createSavedStateHandle()
+                val context = checkNotNull(this[APPLICATION_KEY])
+                val appDatabase = AppDependencies.provideDatabase(context)
                 LocationDetailsViewModel(
-                    locationRepository = LocalLocationRepository(),
+                    locationRepository = LocalLocationRepository(
+                        locationDao = appDatabase.locationDao()
+                    ),
                     savedStateHandle = savedStateHandle
                 )
             }

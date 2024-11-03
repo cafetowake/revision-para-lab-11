@@ -26,6 +26,7 @@ class LocationDb {
         Location(20, "Earth (Replacement Dimension)", "Planet", "Replacement Dimension")
     )
 
+
     fun getAllLocations(): List<Location> {
         return locations
     }

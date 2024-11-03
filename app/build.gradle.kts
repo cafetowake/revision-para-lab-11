@@ -72,13 +72,10 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.splashscreen)
     implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.common)
-    implementation(libs.androidx.room.common.jvm)
-    implementation(libs.androidx.appcompat)
     kapt(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
-
-
+    implementation(libs.bundles.ktor)
+    implementation(libs.bundles.coil)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
