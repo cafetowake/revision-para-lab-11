@@ -15,33 +15,26 @@ class KtorShowApi(
     private val httpClient: HttpClient
 ): ShowApi {
     override suspend fun getAllCharacters(): Result<CharactersDto, NetworkError> {
-        return safeCall<CharactersDto> {
-            httpClient.get(
-                "https://rickandmortyapi.com/api/character"
-            )
+        return safeCall {
+            httpClient.get("https://rickandmortyapi.com/api/character")
         }
     }
 
     override suspend fun getCharacterById(id: Int): Result<CharacterDetailsDto, NetworkError> {
-        return safeCall<CharacterDetailsDto> {
-            httpClient.get(
-                "https://rickandmortyapi.com/api/character/$id"
-            )
+        return safeCall {
+            httpClient.get("https://rickandmortyapi.com/api/character/$id")
         }
     }
 
     override suspend fun getAllLocations(): Result<LocationsDto, NetworkError> {
-        return safeCall<LocationsDto> {
-            httpClient.get(
-                "https://rickandmortyapi.com/api/location"
-            )
+        return safeCall {
+            httpClient.get("https://rickandmortyapi.com/api/location")
         }
     }
+
     override suspend fun getLocationById(id: Int): Result<LocationDetailsDto, NetworkError> {
-        return safeCall<LocationDetailsDto> {
-            httpClient.get(
-                "https://rickandmortyapi.com/api/location/$id"
-            )
+        return safeCall {
+            httpClient.get("https://rickandmortyapi.com/api/location/$id")
         }
     }
 }

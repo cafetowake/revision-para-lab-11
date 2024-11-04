@@ -11,12 +11,16 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import lab3moviles.uvg.edu.gt.data.repository.LocalCharacterRepository
-import lab3moviles.uvg.edu.gt.di.AppDependencies
-import lab3moviles.uvg.edu.gt.domain.repository.CharacterRepository
+import lab3moviles.uvg.edu.gt.data.network.KtorShowApi
+import lab3moviles.uvg.edu.gt.data.network.dto.character.mapToCharacterModel
+import lab3moviles.uvg.edu.gt.di.KtorDependencies
+import lab3moviles.uvg.edu.gt.domain.Api.ShowApi
+import lab3moviles.uvg.edu.gt.domain.network.util.map
+import lab3moviles.uvg.edu.gt.domain.network.util.onError
+import lab3moviles.uvg.edu.gt.domain.network.util.onSuccess
 
 class CharactersViewModel(
-    private val characterRepository: CharacterRepository
+    private val showApi: ShowApi
 ) : ViewModel() {
 
     private var getDataJob: Job? = null
@@ -45,22 +49,27 @@ class CharactersViewModel(
     }
 
     private fun getCharacters() {
-        getDataJob = viewModelScope.launch {
-            _state.update { state ->
-                state.copy(
-                    isLoading = true,
-                    isError = false
-                )
-            }
+        viewModelScope.launch {
+            showApi
+                .getAllCharacters()
+                .map { response -> response.data.map { it.mapToCharacterModel() } }
+                .onSuccess { characters ->
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            characters = characters
+                        )
+                    }
+                }
+                .onError {
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            isError = true
+                        )
+                    }
+                }
 
-            val characters = characterRepository.getCharacters()
-
-            _state.update { state ->
-                state.copy(
-                    isLoading = false,
-                    characters = characters
-                )
-            }
         }
     }
 
@@ -68,13 +77,10 @@ class CharactersViewModel(
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val context = checkNotNull(this[APPLICATION_KEY])
-                val appDatabase = AppDependencies.provideDatabase(context)
-                CharactersViewModel(
-                    characterRepository = LocalCharacterRepository(
-                        characterDao = appDatabase.characterDao()
-                    )
-                )
+                val api = KtorShowApi(KtorDependencies.provideHttpClient(context))
+                CharactersViewModel(api)
             }
+
         }
     }
 }

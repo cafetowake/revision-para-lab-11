@@ -8,20 +8,24 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import androidx.navigation.toRoute
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import lab3moviles.uvg.edu.gt.data.repository.LocalCharacterRepository
-import lab3moviles.uvg.edu.gt.di.AppDependencies
-import lab3moviles.uvg.edu.gt.domain.repository.CharacterRepository
+import lab3moviles.uvg.edu.gt.data.network.KtorShowApi
+import lab3moviles.uvg.edu.gt.data.network.dto.character.mapToCharacterModel
+import lab3moviles.uvg.edu.gt.di.KtorDependencies
+import lab3moviles.uvg.edu.gt.domain.Api.ShowApi
+import lab3moviles.uvg.edu.gt.domain.network.util.map
+import lab3moviles.uvg.edu.gt.domain.network.util.onError
+import lab3moviles.uvg.edu.gt.domain.network.util.onSuccess
 
 class CharacterDetailsViewModel(
-    private val characterRepository: CharacterRepository,
-    savedStateHandle: SavedStateHandle,
-): ViewModel() {
-    private val characterProfile = savedStateHandle.toRoute<CharacterDetailsDestination>()
+    private val showApi: ShowApi,
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
+    private val characterId: Int = savedStateHandle["characterId"] ?: throw IllegalArgumentException("Character ID is missing")
+
     private val _state: MutableStateFlow<CharacterDetailsState> = MutableStateFlow(CharacterDetailsState())
     val state = _state.asStateFlow()
 
@@ -31,34 +35,36 @@ class CharacterDetailsViewModel(
 
     private fun getCharacterData() {
         viewModelScope.launch {
-            _state.update { state ->
-                state.copy(isLoading = true)
-            }
-
-            val location = characterRepository.getCharacterById(characterProfile.characterId)
-
-            _state.update { state ->
-                state.copy(
-                    data = location,
-                    isLoading = false
-                )
-            }
-
+            showApi
+                .getCharacterById(id = characterId)
+                .map { response -> response.data.mapToCharacterModel() }
+                .onSuccess { character ->
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            data = character
+                        )
+                    }
+                }
+                .onError {
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                        )
+                    }
+                }
         }
     }
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val savedStateHandle = createSavedStateHandle()
-                val context = checkNotNull(this[APPLICATION_KEY])
-                val appDatabase = AppDependencies.provideDatabase(context)
-                CharacterDetailsViewModel(
-                    characterRepository = LocalCharacterRepository(
-                        characterDao = appDatabase.characterDao()
-                    ),
-                    savedStateHandle = savedStateHandle
-                )
+                val savedStateHandle = this.createSavedStateHandle()
+                val context = checkNotNull(this[APPLICATION_KEY]) {
+                    "Application context needed to create the ViewModel"
+                }
+                val api = KtorShowApi(KtorDependencies.provideHttpClient(context))
+                CharacterDetailsViewModel(api, savedStateHandle)
             }
         }
     }
