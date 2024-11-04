@@ -19,9 +19,9 @@ import lab3moviles.uvg.edu.gt.domain.repository.CharacterRepository
 import lab3moviles.uvg.edu.gt.domain.repository.LocationRepository
 
 class LoginViewModel(
-    private val characterRepository: LocalCharacterRepository,
-    private val locationRepository: LocalLocationRepository
-) : ViewModel() {
+    private val characterRepository: CharacterRepository,
+    private val locationRepository: LocationRepository
+): ViewModel() {
 
     private val _state = MutableStateFlow(LoginState())
     val state = _state.asStateFlow()
@@ -33,12 +33,12 @@ class LoginViewModel(
                 _state.update { it.copy(
                     isLoading = false,
                     loginSuccessful = true
-                ) }
+                )}
             } else {
                 _state.update { it.copy(
                     isLoading = false,
                     loginSuccessful = false
-                ) }
+                )}
             }
         }
     }
@@ -48,10 +48,12 @@ class LoginViewModel(
             initializer {
                 val context = checkNotNull(this[APPLICATION_KEY])
                 val appDatabase = AppDependencies.provideDatabase(context)
-                val api = KtorShowApi(KtorDependencies.provideHttpClient(context))
+                val httpClient = KtorDependencies.provideHttpClient(context)
+                val api = KtorShowApi(httpClient)
+
                 LoginViewModel(
-                    characterRepository = LocalCharacterRepository(api),
-                    locationRepository = LocalLocationRepository(api)
+                    characterRepository = LocalCharacterRepository(appDatabase.characterDao(), api),
+                    locationRepository = LocalLocationRepository(appDatabase.locationDao(), api)
                 )
             }
         }
