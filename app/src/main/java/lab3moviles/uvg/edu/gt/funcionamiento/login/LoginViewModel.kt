@@ -1,6 +1,5 @@
 package lab3moviles.uvg.edu.gt.funcionamiento.login
 
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -11,16 +10,18 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import lab3moviles.uvg.edu.gt.data.network.KtorShowApi
 import lab3moviles.uvg.edu.gt.data.repository.LocalCharacterRepository
 import lab3moviles.uvg.edu.gt.data.repository.LocalLocationRepository
 import lab3moviles.uvg.edu.gt.di.AppDependencies
+import lab3moviles.uvg.edu.gt.di.KtorDependencies
 import lab3moviles.uvg.edu.gt.domain.repository.CharacterRepository
 import lab3moviles.uvg.edu.gt.domain.repository.LocationRepository
 
 class LoginViewModel(
-    private val characterRepository: CharacterRepository,
-    private val locationRepository: LocationRepository
-): ViewModel() {
+    private val characterRepository: LocalCharacterRepository,
+    private val locationRepository: LocalLocationRepository
+) : ViewModel() {
 
     private val _state = MutableStateFlow(LoginState())
     val state = _state.asStateFlow()
@@ -32,12 +33,12 @@ class LoginViewModel(
                 _state.update { it.copy(
                     isLoading = false,
                     loginSuccessful = true
-                )}
+                ) }
             } else {
                 _state.update { it.copy(
                     isLoading = false,
                     loginSuccessful = false
-                )}
+                ) }
             }
         }
     }
@@ -47,9 +48,10 @@ class LoginViewModel(
             initializer {
                 val context = checkNotNull(this[APPLICATION_KEY])
                 val appDatabase = AppDependencies.provideDatabase(context)
+                val api = KtorShowApi(KtorDependencies.provideHttpClient(context))
                 LoginViewModel(
-                    characterRepository = LocalCharacterRepository(appDatabase.characterDao()),
-                    locationRepository = LocalLocationRepository(appDatabase.locationDao())
+                    characterRepository = LocalCharacterRepository(api),
+                    locationRepository = LocalLocationRepository(api)
                 )
             }
         }

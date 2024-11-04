@@ -25,7 +25,6 @@ class CharacterDetailsViewModel(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val characterId: Int = savedStateHandle["characterId"] ?: throw IllegalArgumentException("Character ID is missing")
-
     private val _state: MutableStateFlow<CharacterDetailsState> = MutableStateFlow(CharacterDetailsState())
     val state = _state.asStateFlow()
 

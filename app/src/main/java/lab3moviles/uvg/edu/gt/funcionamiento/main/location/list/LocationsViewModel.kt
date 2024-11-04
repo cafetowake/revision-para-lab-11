@@ -1,6 +1,5 @@
 package lab3moviles.uvg.edu.gt.funcionamiento.main.location.list
 
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -12,12 +11,16 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import lab3moviles.uvg.edu.gt.data.repository.LocalLocationRepository
-import lab3moviles.uvg.edu.gt.di.AppDependencies
-import lab3moviles.uvg.edu.gt.domain.repository.LocationRepository
+import lab3moviles.uvg.edu.gt.data.network.KtorShowApi
+import lab3moviles.uvg.edu.gt.data.network.dto.location.mapToLocationModel
+import lab3moviles.uvg.edu.gt.di.KtorDependencies
+import lab3moviles.uvg.edu.gt.domain.Api.ShowApi
+import lab3moviles.uvg.edu.gt.domain.network.util.map
+import lab3moviles.uvg.edu.gt.domain.network.util.onError
+import lab3moviles.uvg.edu.gt.domain.network.util.onSuccess
 
 class LocationsViewModel(
-    private val locationRepository: LocationRepository
+    private val showApi: ShowApi
 ): ViewModel() {
     private var getDataJob: Job? = null
     private var _state = MutableStateFlow(LocationsState())
@@ -45,22 +48,26 @@ class LocationsViewModel(
     }
 
     private fun getLocations() {
-        getDataJob = viewModelScope.launch {
-            _state.update { state ->
-                state.copy(
-                    isLoading = true,
-                    isError = false
-                )
-            }
-
-            val locations = locationRepository.getLocations()
-
-            _state.update { state ->
-                state.copy(
-                    isLoading = false,
-                    locations = locations
-                )
-            }
+        viewModelScope.launch {
+            showApi
+                .getAllLocations()
+                .map { response -> response.data.map { it.mapToLocationModel() } }
+                .onSuccess { locations ->
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            locations = locations
+                        )
+                    }
+                }
+                .onError {
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            isError = true
+                        )
+                    }
+                }
         }
     }
 
@@ -68,14 +75,9 @@ class LocationsViewModel(
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val context = checkNotNull(this[APPLICATION_KEY])
-                val appDatabase = AppDependencies.provideDatabase(context)
-                LocationsViewModel(
-                    locationRepository = LocalLocationRepository(
-                        locationDao = appDatabase.locationDao()
-                    )
-                )
+                val api = KtorShowApi(KtorDependencies.provideHttpClient(context))
+                LocationsViewModel(api)
             }
         }
     }
-
 }
